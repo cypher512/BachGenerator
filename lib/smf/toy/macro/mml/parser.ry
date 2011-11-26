@@ -1,0 +1,239 @@
+# parser.ry: Written by Tadayoshi Funaba 1999-2005,2008
+# $Id: parser.ry,v 1.3 2008-02-16 16:56:21+09 tadf Exp $
+
+class SMF::MMLParser
+
+  prechigh
+    nonassoc UMINUS
+    left '*' '/'
+    left '+' '-'
+  preclow
+
+rule
+
+  prog	: list { result = val[0] } ;
+
+  list	: { result = [:list, []] }
+	| list stmt { val[0][1] << val[1]; result = val[0] }
+	;
+
+  stmt	: expr     { result = [:stmt, val[0]] }
+	| expr '&' { result = [:stmt, val[0], val[1]] }
+	;
+
+  expr	: step { result = [:step, val[0]] }
+	| note | text | asgn
+	| '{' list '}' { result = val[1] }
+	;
+
+  note	: NOTE { result = [:note, val[0]] } ;
+  text	: TEXT { result = [:text, val[0]] } ;
+
+  asgn	: VAR AOP num
+		{ result = [:asgn, val[0], val[1], val[2]] }
+	| VAR AOP num ',' num
+		{ result = [:asgn, val[0], val[1], val[2], val[4]] }
+	;
+
+  step	: step '+' step { result = [:add, val[0], val[2]] }
+	| step '-' step { result = [:sub, val[0], val[2]] }
+	| step '*' num  { result = [:mul, val[0], val[2]] }
+	| step '/' num  { result = [:div, val[0], val[2]] }
+	| '(' step ')' { result = val[1] }
+	| STEP { result = [:imm, val[0]] }
+	;
+
+  num	: num '+' num { result = [:add, val[0], val[2]] }
+	| num '-' num { result = [:sub, val[0], val[2]] }
+	| num '*' num { result = [:mul, val[0], val[2]] }
+	| num '/' num { result = [:div, val[0], val[2]] }
+	| '-' num = UMINUS { result = [:negate, val[1]] }
+	| '(' num ')' { result = val[1] }
+	| NUM { result = [:imm, val[0]] }
+	;
+
+end
+
+---- header ----
+
+require 'smf'
+require 'smf/toy/macro'
+require 'rational'
+
+class SemanticError < StandardError; end
+
+---- inner ----
+
+  STEPTAB = { 'w'=>1.to_r/1, 'h'=>1.to_r/2,
+	      'q'=>1.to_r/4, 'i'=>1.to_r/8,
+	      's'=>1.to_r/16,'z'=>1.to_r/32,
+	      'u'=>1.to_r/1920 }
+
+  NOTETAB = { 'a'=>9, 'b'=>11, 'c'=>0, 'd'=>2, 'e'=>4, 'f'=>5, 'g'=>7 }
+
+  def lineno() @co end
+
+  def parse(str)
+    @co = 1
+    @str = str
+    do_parse
+  end
+
+  def next_token
+    loop do
+      @str = @str.sub(/\A([\s\v]+)/, '')
+      if $1
+	@co += $1.count("\n")
+      end
+      @str = @str.sub(%r|\A(//.*)$|, '')
+      break unless $1
+    end
+    return [false, false] if @str.size == 0
+
+    if /\A([whqiszu])\b(\.+)?/i =~ @str
+      @str = $'
+      n = STEPTAB[$1.downcase]
+      i = if $2 then $2.size else 0 end
+      p = 1
+      i.times do |j|
+	p += Rational(1, 2 ** (j + 1))
+      end
+      s = n * p
+      return [:STEP, s]
+    end
+
+    if /\Ar\b/i =~ @str
+      @str = $'
+      return [:NOTE, nil]
+    end
+
+    if /\A([abcdefg])\b([$%#]+)?([,']+)?/i =~ @str
+      @str = $'
+      na = NOTETAB[$1.downcase]
+      if $2
+	s1 = 0
+	s1 -= $2.count('$')
+	s1 += $2.count('#')
+      end
+      if $3
+	s12 = 0
+	s12 -= $3.count(",") * 12
+	s12 += $3.count("'") * 12
+      end
+      return [:NOTE, [na, s1, s12]]
+    end
+
+    if /\A"/ =~ @str
+      @str = $'
+      s = '"'
+      until /\A"/ =~ @str
+	case @str
+	when /\A(\\.|.)/m; s << $1
+	end
+	@co += $1.count("\n")
+	@str = $'
+      end
+      s << '"'
+      @str = $'
+      return [:TEXT, eval(s)]
+    end
+
+    if /\A([a-z][a-z0-9]*)/i =~ @str
+      @str = $'
+      return [:VAR, $1]
+    end
+
+    if %r|\A([-+*/]?=)| =~ @str
+      @str = $'
+      return [:AOP, $1[0]]
+    end
+
+    if /\A(\d+)/ =~ @str
+      @str = $'
+      return [:NUM, Rational($1.to_i)]
+    end
+
+    if /\A(.)/ =~ @str
+      @str = $'
+      return [$1, $1]
+    end
+  end
+
+---- footer ----
+
+module SMF
+
+  class MMLEvaluator
+
+    def initialize(de) @de = de end
+
+    def evaluate(st)
+      case st[0]
+      when :list
+	@de.push
+	st[1].each do |st2|
+	  evaluate(st2)
+	end
+	of = @de[:of]
+	@de.pop
+	@de[:of] = of
+	@de.snap
+      when :stmt
+	of = @de[:of]
+	evaluate(st[1])
+	if st[2]
+	  @de[:of] = of
+	end
+      when :step
+	@de[:le] = evaluate(st[1])
+      when :add
+	return evaluate(st[1]) + evaluate(st[2])
+      when :sub
+	return evaluate(st[1]) - evaluate(st[2])
+      when :mul
+	return evaluate(st[1]) * evaluate(st[2])
+      when :div
+	return evaluate(st[1]) / evaluate(st[2])
+      when :negate
+	return - evaluate(st[1])
+      when :imm
+	return st[1]
+      when :note
+	@de[:_no] = st[1]
+	@de.snap
+	@de[:_no] = nil
+	@de[:of] += @de[:le]
+      when :text
+	@de[:_tx] = st[1]
+	@de.snap
+	@de[:_tx] = nil
+      when :asgn
+	va = st[1]
+	op = st[2]
+	ob = evaluate(st[3])
+	if st[4]
+	  ob2 = evaluate(st[4])
+	  ob = [ob, ob2]
+	end
+	va = va.intern
+	v = @de[va]
+	case op
+	when ?+; v += ob
+	when ?-; v -= ob
+	when ?*; v *= ob
+	when ?/; v /= ob
+	when ?=; v  = ob
+	end
+	if va == :ke
+	  @de[:_ke] = v
+	  @de.snap
+	  @de[:_ke] = nil
+	end
+	@de[va] = v
+	@de.snap
+      end
+    end
+
+  end
+
+end
