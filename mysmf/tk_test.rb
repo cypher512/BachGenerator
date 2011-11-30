@@ -12,7 +12,7 @@ class Keyboard
                           'height' => @unit_size *@h).pack
     @keys = []
     @chords = []
-    @title = TkLabel.new("text" => "誰でもバッハ version 0.1", 'font' => 'Gothic 22').pack
+    @title = TkLabel.new("text" => "誰でもバッハ version 1.0", 'font' => 'Gothic 22').pack
     @title.place('x' => 250, 'y' => 15)
     @label = TkLabel.new("text" => "オススメコードがある場合はボタンが青くなります", 'font' => "Gothic 10").pack
     @label.place('x' => 200, 'y' => 550)
@@ -27,11 +27,11 @@ class Keyboard
   attr :keys
   attr :chords
   RECOMMEND = {
-    "I" => ["II", "IV", "V7", "VI"],
-    "II" => ["V7"],
-    "IV" => ["I", "II", "V7"],
-    "V7" => ["I", "VI"],
-    "VI" => ["II", "IV"],
+    "C" => ["D", "F", "G7", "A"],
+    "D" => ["G7"],
+    "F" => ["C", "D", "G7"],
+    "G7" => ["C", "A"],
+    "A" => ["D", "F"],
   }
 
   def enter(key)
@@ -71,7 +71,7 @@ class Keyboard
   def play_midi_ext																	
 	recommend_clear
     chords_num = []
-	chords_table={"I"=>1, "II"=>2, "Ⅲ"=>3, "IV"=>4, "V7"=>5, "VI"=>6, "Ⅶ"=>7}		#ちょっと無駄だが
+	chords_table={"C"=>1, "D"=>2, "F"=>4, "G7"=>5, "A"=>6}		#ちょっと無駄だが
 	@chords.each do |c|
 		chords_num << chords_table[c]
 	end	
@@ -140,11 +140,11 @@ board = Keyboard.new()
 
 # ⅢとⅦは廃止
 
-c = Key.new(board, 'I', 2, 1, 1, 1)
-d = Key.new(board, 'II', 3, 1, 1, 1)
-f = Key.new(board, 'IV',  4, 1, 1, 1)
-g = Key.new(board, 'V7', 5, 1, 1, 1)
-a = Key.new(board, 'VI', 6, 1, 1, 1)
+c = Key.new(board, 'C', 2, 1, 1, 1)
+d = Key.new(board, 'D', 3, 1, 1, 1)
+f = Key.new(board, 'F',  4, 1, 1, 1)
+g = Key.new(board, 'G7', 5, 1, 1, 1)
+a = Key.new(board, 'A', 6, 1, 1, 1)
 start = Key.new(board,"PLAY", 3, 3, 3, 1)
 
 
