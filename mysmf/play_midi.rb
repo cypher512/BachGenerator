@@ -1,20 +1,24 @@
-# -*- encoding: sjis -*-
-#  ƒtƒ@ƒCƒ‹‚ğ“Ç‚ñ‚Å˜AŒ‹
-#	@duration‚ğ‘‚â‚µ‚È‚ª‚ç‚Ğ‚Á‚­‚è•Ô‚µ‚Ä˜AŒ‹
-#	"eot"‚ÍŠO‚©‚ç
+# -*- encoding: utf-8 -*-
+#  ãƒ•ã‚¡ã‚¤ãƒ«ã‚’èª­ã‚“ã§é€£çµ
+#	@durationã‚’å¢—ã‚„ã—ãªãŒã‚‰ã²ã£ãã‚Šè¿”ã—ã¦é€£çµ
+#	"eot"ã¯å¤–ã‹ã‚‰
+
 
 
 
 require "pp"
 require 'midi-win'
+require 'fileutils'
+include FileUtils
+include FileTest
 
-#‰¹Œ¹
-SOURCE0 = 11	#ƒIƒ‹ƒS[ƒ‹
-SOURCE1 = 8		#ƒNƒ‰ƒrƒR[ƒh
-SOURCE2 = 11	#ƒIƒ‹ƒS[ƒ‹
+#éŸ³æº
+SOURCE0 = 11	#ã‚ªãƒ«ã‚´ãƒ¼ãƒ«
+SOURCE1 = 8		#ã‚¯ãƒ©ãƒ“ã‚³ãƒ¼ãƒ‰
+SOURCE2 = 11	#ã‚ªãƒ«ã‚´ãƒ¼ãƒ«
 
 def get_file(f)
-#		p f				#ƒfƒoƒbƒO—p@“ü—Íƒtƒ@ƒCƒ‹
+#		p f				#ãƒ‡ãƒãƒƒã‚°ç”¨ã€€å…¥åŠ›ãƒ•ã‚¡ã‚¤ãƒ«
 	open(f) do |io|
 		d = ""
 		while line = io.gets
@@ -32,7 +36,7 @@ class String
   end
 
 
-  #attr_accessor :code		#’²‚Ì‚‚³
+  #attr_accessor :code		#èª¿ã®é«˜ã•
   
   def midi_table
     @nn = {"c"=>60, "c#"=>61, "d@"=>61, "d"=>62, "d#"=>63, "e@"=>63, "e"=>64, "f"=>65, "f#"=>66, \
@@ -43,18 +47,18 @@ class String
     k, j = 0, 0
 	@duration = 0
     d.each {|i|
-      if i =~ /[a-g].*/		#‚‚³
+      if i =~ /[a-g].*/		#é«˜ã•
         i.scan(/([a-g][\#@]*)(.*)/) {|l|
           j = @nn[l[0]] #+ @code
-          k = l[1].to_i if l[1].is_int?		#–³ˆó‚Å‚È‚¯‚ê‚Î‚‚³’²®
+          k = l[1].to_i if l[1].is_int?		#ç„¡å°ã§ãªã‘ã‚Œã°é«˜ã•èª¿æ•´
           n << j + k * 12
           k = 0
         }
-      elsif i.is_int?		#’·‚³
+      elsif i.is_int?		#é•·ã•
         n << "o" + i
         @duration += i.to_i
       elsif i == "//"
-        n << "eot"			#ƒ`ƒƒƒlƒ‹‚ÌI‚í‚è
+        n << "eot"			#ãƒãƒ£ãƒãƒ«ã®çµ‚ã‚ã‚Š
       end
     }
     n
@@ -63,7 +67,7 @@ class String
   def midi_table_rev
     d = self.split()
     n = []
-    n <<  "o720"		# ‹È‚Ì’²q‚É‚æ‚Á‚Ä•Ï‚í‚é
+    n <<  "o720"		# æ›²ã®èª¿å­ã«ã‚ˆã£ã¦å¤‰ã‚ã‚‹
     k, j = 0, 0
     @duration_rev = 0
     d.each {|i|
@@ -72,15 +76,15 @@ class String
           j = @nn[@nn_rev4[l[0]]] #+ @code
           jj = @nn[l[0]]
           if l[1].is_int?
-          	if (jj % 12)					#C‚Ìê‡
+          	if (jj % 12)					#Cã®å ´åˆ
           		k = l[1].to_i
-		        n << j - (k-1) * 12		#1‚¸‚ê‚Ä‚¢‚é
+		        n << j - (k-1) * 12		#1ãšã‚Œã¦ã„ã‚‹
           	else
           		k = l[1].to_i
-		        n << j - k * 12			#•„†”½“]‚Ì‚İ
+		        n << j - k * 12			#ç¬¦å·åè»¢ã®ã¿
           	end
           else
-	        n << j						#ƒAƒ‹ƒtƒ@ƒxƒbƒg‚Ì‚İ
+	        n << j						#ã‚¢ãƒ«ãƒ•ã‚¡ãƒ™ãƒƒãƒˆã®ã¿
           end
        }
       elsif i.is_int?
@@ -99,9 +103,9 @@ end
 
 
 
-#####	‰‰‘tŠÖ”	#####
+#####	æ¼”å¥é–¢æ•°	#####
 
-### ‚Rº@ƒx[ƒX‰¹‚ğì¬
+### ï¼“å£°ã€€ãƒ™ãƒ¼ã‚¹éŸ³ã‚’ä½œæˆ
 def base_table (user_in_code)
 	ret = String.new
 	nn = {1 => "c-1", 2 => "d-1", 4 => "f-1", 5 => "g-1", 6 => "a-1"}
@@ -110,29 +114,33 @@ def base_table (user_in_code)
 		ret += " 240 "	
 		#ret += nn[u]
 		ret += " 240 "
-		if i + 1 < user_in_code.length				#ÅŒã‚Í‚P‰¹‚¾‚¯
+		if i + 1 < user_in_code.length				#æœ€å¾Œã¯ï¼‘éŸ³ã ã‘
 			ret += nn[u]
 			ret += " 240 "
 		end	
 	end
-	ret += " //"
+	ret += " // "
 	return ret
 end
 
-### Šeº•”‚ğ‡‚í‚¹‚Ä‰‰‘t‚·‚é
+### å„å£°éƒ¨ã‚’åˆã‚ã›ã¦æ¼”å¥ã™ã‚‹
 def play_midi (user_in_code)
 
-	#ƒR[ƒhis
+	#ã‚³ãƒ¼ãƒ‰é€²è¡Œ
 	data = String.new
 
 	user_in_code.each_with_index do |f, i|
-		if i == user_in_code.length - 1					#ÅŒã
+		if i == user_in_code.length - 1					#æœ€å¾Œ
 			f = 0.to_s + f.to_s + "2" + ".txt"
-			data += get_file(f) + " //"			
-		elsif (i % 2) == 0						#‹ô””Ô–Ú
+			data += get_file(f) + " // "			
+		elsif i == 0
+			f = rand(4).to_s + f.to_s + "0" + ".txt"
+#			pp f
+			data += get_file(f)		
+		elsif (i % 2) == 0						#å¶æ•°ç•ªç›®
 			f = 0.to_s + f.to_s + "0" + ".txt"
 			data += get_file(f)
-		else									#Šï””Ô–Ú
+		else									#å¥‡æ•°ç•ªç›®
 			f = 0.to_s + f.to_s + "1" + ".txt"
 			data += get_file(f)
 		end
@@ -141,16 +149,16 @@ def play_midi (user_in_code)
 
 #	data.code = 0		#C Major
 
-#	pp data										#“Ç‚İ‚ñ‚¾Šy•ˆ
+#	pp data										#èª­ã¿è¾¼ã‚“ã æ¥½è­œ
 
-	cadence = data.midi_table					#‚Pº
+	cadence = data.midi_table					#ï¼‘å£°
 	#cadence.clear
-	cadence += data.midi_table_rev				#‚Qº@‚U”’x‚ç‚¹‚Ä”½“]
+	cadence += data.midi_table_rev				#ï¼’å£°ã€€ï¼–æ‹é…ã‚‰ã›ã¦åè»¢
 	cadence += (base_table user_in_code).midi_table
 
 	#debug log
 #	p "cadence\n"
-#	p cadence									#‰‰‘t“à—e‚ÌƒfƒoƒbƒOo—Í
+#	p cadence									#æ¼”å¥å†…å®¹ã®ãƒ‡ãƒãƒƒã‚°å‡ºåŠ›
 	sq = Sequence.new(1,120,nil)
 	ch = 0
 	note = []
@@ -160,13 +168,13 @@ def play_midi (user_in_code)
 	tr << ProgramChange.new(0, 0, SOURCE0) << ProgramChange.new(0, 1, SOURCE1) << ProgramChange.new(0, 2, SOURCE2)
 	sq << tr
 	cadence.each {|c|
-	  if c == "eot"			#ƒ`ƒƒƒlƒ‹‚ÌI‚è
-	    ch += 1				#Ÿ‚Ìƒ`ƒƒƒlƒ‹‚ğ—pˆÓ
+	  if c == "eot"			#ãƒãƒ£ãƒãƒ«ã®çµ‚ã‚Š
+	    ch += 1				#æ¬¡ã®ãƒãƒ£ãƒãƒ«ã‚’ç”¨æ„
 	    offset = 0
 	    tr = Track.new
 	    sq << tr
-	  elsif c =~ /o\d?/		#’·‚³
-	    if note != []		#‹x‘§‚Å‚È‚¢ê‡
+	  elsif c =~ /o\d?/		#é•·ã•
+	    if note != []		#ä¼‘æ¯ã§ãªã„å ´åˆ
 	      o = offset
 	      offset += (c.delete("o").to_i - 5)
 	      note.each {|n|
@@ -175,68 +183,22 @@ def play_midi (user_in_code)
 	      }
 	      note = []
 	      offset += 5
-	    else				#‹x‘§‚Ìê‡
+	    else				#ä¼‘æ¯ã®å ´åˆ
 	      offset += c.delete("o").to_i
 	    end
-	  else					#‚‚³
+	  else					#é«˜ã•
 	    note << c
 	  end
 	}
-	sq.play(0)
-	sq.save(File.basename("test") + ".midi")
+	sq.play(0)															#æ¼”å¥
+	sq.save(File.basename("test") + ".midi")							#ãƒ•ã‚¡ã‚¤ãƒ«ã«è½ã¨ã™
+	
+	if not directory?("archive")										#archiveãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªãªã‹ã£ãŸã‚‰ä½œã‚‹
+		mkdir("archive")
+	end	
+	to = "archive/" + Time.now.strftime("%Y_%m%d_%H%M_%S") + ".midi"	#é€€é¿
+	cp("test.midi", to)
 end
 
-#####	MAIN	#####
-
-system("cls")
-
-start_mes = "Å‰‚ÆÅŒã‚Í I ‚Å  ‰‰‘tŠJn‚ÍStart"
-puts start_mes
-
-ktable={121=>[60,"I ", 1], 103=>[62,"II", 2], 98=>[65,"IV", 4], 110=>[67,"V7", 5], 106=>[69,"VI", 6]}
-
-code_table={"I "=>"II or IV or V7 or VI", "II"=>"V7", "IV"=>"I or II or V7", "V7"=>"I or VI", "VI"=>"II or IV"}
-
-def n_on(c,n,v)
-  sq = Sequence.new
-  tr = Track.new
-  tr << ProgramChange.new(0, 0, 11)
-  sq << tr
-  tr << NoteOn .new(0,0,n,v)
-  tr << NoteOff .new(120,0,n,v)
-  sq.play(c)
-end
-
-user_in = Array.new
-user_in_code = Array.new
-
-
-c = Win32API.new('msvcrt','_getch',[],'l')
-while true
-  k = c.call
- 
- 
-  
-  n_on(0, ktable[k][0], 127) if ktable.key?(k)
-  if k == 27											#ƒuƒƒOƒ‰ƒ€I—¹
-  	break
-  end
-  if ktable.key?(k)
-  	puts ktable[k][1] + "  Ÿ‚ÌƒR[ƒhŒó•â => " + code_table[ktable[k][1]]
-	user_in << ktable[k][1]
-	user_in_code << ktable[k][2]
-  end
-  if k == 104	#'h'ƒL[
-  	puts "‚ ‚È‚½‚ÌƒR[ƒhis"
-  	p user_in
-  	play_midi user_in_code								#‰‰‘tŠJn
-
-  	user_in.clear; user_in_code.clear
-  	puts "‰‰‘tI—¹II"
-  	sleep 2
-  	system("cls")
-	puts start_mes
-  end	
-end
 
 
