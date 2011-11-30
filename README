@@ -18,14 +18,11 @@
 
 
 2.mysmfディレクトリに移動してRubyコンソールから次のように起動します。
->ruby play_midi.rb
+>ruby -Ku tk_test.rb
 
 3.画面の指示に従ってコード進行を選びます。
 
 最初と最後はIを選んでください。
-キーの割り当ては以下です。
-
-Y=>I G=>II B=>IV N=>V7 J=>VI H=>Start ESC=>終了 
 
 動作環境　Windows 7 Service Pack 1  ActiveRubyScript (Ruby version 1.8.7)
 
