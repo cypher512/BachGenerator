@@ -17,6 +17,8 @@ class Keyboard
     @label = TkLabel.new("text" => "オススメコードがある場合はボタンが青くなります", 'font' => "Gothic 10").pack
     @label.place('x' => 200, 'y' => 550)
     @message = TkLabel.new("text" => "ボタンを押してコード進行を決めて下さい", 'font' => 'Gothic 12').pack
+    
+    
     self
   end
 
@@ -57,9 +59,19 @@ class Keyboard
     end
   end
 
-  def play_midi_ext																	#paly_midiへのラッパー
+  ### keyの色を消す
+  def recommend_clear
+    @keys.each do |key|
+      color = "gray"
+      key.set_bg(color)
+    end
+  end
+  
+  ### paly_midiへのラッパー
+  def play_midi_ext																	
+	recommend_clear
     chords_num = []
-	chords_table={"I"=>1, "II"=>2, "Ⅲ"=>3, "IV"=>4, "V7"=>5, "VI"=>6, "Ⅶ"=>7}		#ちょっと無駄だが置き換え
+	chords_table={"I"=>1, "II"=>2, "Ⅲ"=>3, "IV"=>4, "V7"=>5, "VI"=>6, "Ⅶ"=>7}		#ちょっと無駄だが
 	@chords.each do |c|
 		chords_num << chords_table[c]
 	end	
@@ -126,12 +138,15 @@ end
 
 board = Keyboard.new()
 
-c = Key.new(board, 'I', 1, 1, 1, 1)
-d = Key.new(board, 'II', 2, 1, 1, 1)
-e = Key.new(board, 'III', 3, 1, 1, 1)
+# ⅢとⅦは廃止
+
+c = Key.new(board, 'I', 2, 1, 1, 1)
+d = Key.new(board, 'II', 3, 1, 1, 1)
 f = Key.new(board, 'IV',  4, 1, 1, 1)
 g = Key.new(board, 'V7', 5, 1, 1, 1)
 a = Key.new(board, 'VI', 6, 1, 1, 1)
-b = Key.new(board, 'VII', 7, 1, 1, 1)
 start = Key.new(board,"PLAY", 3, 3, 3, 1)
+
+
+
 Tk.mainloop
