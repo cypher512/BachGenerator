@@ -18,7 +18,7 @@
 
 
 2.mysmfディレクトリに移動してRubyコンソールから次のように起動します。
->ruby -Ku tk_test.rb
+>ruby -Ku bachgen.rb
 
 3.画面の指示に従ってコード進行を選びます。
 

@@ -19,7 +19,7 @@ class Keyboard
     @label.place('x' => (f_width / 3), 'y' => 300)
     @message = TkLabel.new("text" => "ボタンを押してコード進行を決めて下さい", 'font' => 'Gothic 12').pack
     @key_window = TkLabel.new("text" => "ここに選択したコード例が表示されます",
-                              "image" => TkPhotoImage.new("file" => "image/kenban1.gif"),
+                              "image" => TkPhotoImage.new("file" => "image/0.gif"),
                               "compound" => "bottom").pack
     @key_window.place('x' => (f_width / 3), 'y' => 350)
     
@@ -46,6 +46,8 @@ class Keyboard
     "A"  => ["image/A.gif"],
   }
 
+  PLAYABLE = "light green"
+
   def enter(key)
     @keys.push key
   end
@@ -62,6 +64,7 @@ class Keyboard
     recs = RECOMMEND[key]
     recs = [] unless recs
     @keys.each do |key|
+      next if key.name == "PLAY"
       if recs.include?(key.name)
         color = "blue"
       else
@@ -73,8 +76,15 @@ class Keyboard
 
   def replace_key_window(name = nil)
     file = KEY_MAP[name]
-    file = "image/kenban1.gif" unless file
+    file = "image/0.gif" unless file
     @key_window.image = TkPhotoImage.new("file" => file)
+  end
+
+  def play?
+    if @chords.size > 3
+      key = @keys.detect{|x| x.name == "PLAY"}
+      key.set_bg(PLAYABLE)
+    end
   end
 
   ### keyの色を消す
@@ -143,6 +153,7 @@ class Key
     else
       @board.set_chord(self.name)
       @board.recommend_next(self.name)
+      @board.play?
     end
   end
 
@@ -175,5 +186,4 @@ f = Key.new(board, 'F',  4, 1, 1, 1)
 g = Key.new(board, 'G7', 5, 1, 1, 1)
 a = Key.new(board, 'A',  6, 1, 1, 1)
 start = Key.new(board,"PLAY", 3, 2, 3, 1)
-start.set_bg("light green")
 Tk.mainloop
