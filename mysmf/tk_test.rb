@@ -5,19 +5,23 @@ require 'play_midi'
 class Keyboard
 
   def initialize(parent=nil, unit=150)
-    @w = 6
-    @h = 4
+    @w = 8
+    @h = 5
     @unit_size = unit
-    @widget = TkFrame.new(parent, 'width' => @unit_size * @w,
-                          'height' => @unit_size *@h).pack
+    f_width    = @unit_size * @w
+    f_height   = @unit_size * @h
+    @widget = TkFrame.new(parent, 'width' => f_width, 'height' => f_height).pack
     @keys = []
     @chords = []
     @title = TkLabel.new("text" => "誰でもバッハ version 1.0", 'font' => 'Gothic 22').pack
-    @title.place('x' => 250, 'y' => 15)
+    @title.place('x' => (f_width / 3), 'y' => 15)
     @label = TkLabel.new("text" => "オススメコードがある場合はボタンが青くなります", 'font' => "Gothic 10").pack
-    @label.place('x' => 200, 'y' => 550)
+    @label.place('x' => (f_width / 3), 'y' => 300)
     @message = TkLabel.new("text" => "ボタンを押してコード進行を決めて下さい", 'font' => 'Gothic 12').pack
-    
+    @key_window = TkLabel.new("text" => "ここに選択したコード例が表示されます",
+                              "image" => TkPhotoImage.new("file" => "image/kenban1.gif"),
+                              "compound" => "bottom").pack
+    @key_window.place('x' => (f_width / 3), 'y' => 350)
     
     self
   end
@@ -32,6 +36,14 @@ class Keyboard
     "F" => ["C", "D", "G7"],
     "G7" => ["C", "A"],
     "A" => ["D", "F"],
+  }
+
+  KEY_MAP = {
+    "C"  => ["image/C.gif"],
+    "D"  => ["image/D.gif"],
+    "F"  => ["image/F.gif"],
+    "G7" => ["image/G7.gif"],
+    "A"  => ["image/A.gif"],
   }
 
   def enter(key)
@@ -57,6 +69,12 @@ class Keyboard
       end
       key.set_bg(color)
     end
+  end
+
+  def replace_key_window(name = nil)
+    file = KEY_MAP[name]
+    file = "image/kenban1.gif" unless file
+    @key_window.image = TkPhotoImage.new("file" => file)
   end
 
   ### keyの色を消す
@@ -98,6 +116,8 @@ class Key
     board.enter(self)
     @widget.bind('1', proc{|e| do_press e.x, e.y})
     @widget.bind('ButtonRelease-1', proc{|x, y| do_release x, y}, "%x %y")
+    @widget.bind('Enter', proc{|e| do_mouseover x, y})
+    @widget.bind('Leave', proc{|e| do_mouseout x, y})
 
   end
   attr :name
@@ -109,9 +129,9 @@ class Key
   def moveto(x, y)
     @x = x
     @y = y
-    @widget.place('x' => @unit * x,
+    @widget.place('x' => @unit * x + 150,
                   'y' => @unit * y,
-                  'width' => @unit * @w,
+                  'width'  => @unit * @w,
                   'height' => @unit * @h)
   end
 
@@ -134,19 +154,26 @@ class Key
     end
   end
 
+  def do_mouseover(x, y)
+    @board.replace_key_window(self.name)
+  end
+  
+  def do_mouseout(x, y)
+    @board.replace_key_window()
+  end
+  
+
 end
 
 board = Keyboard.new()
 
 # ⅢとⅦは廃止
 
-c = Key.new(board, 'C', 2, 1, 1, 1)
-d = Key.new(board, 'D', 3, 1, 1, 1)
+c = Key.new(board, 'C',  2, 1, 1, 1)
+d = Key.new(board, 'D',  3, 1, 1, 1)
 f = Key.new(board, 'F',  4, 1, 1, 1)
 g = Key.new(board, 'G7', 5, 1, 1, 1)
-a = Key.new(board, 'A', 6, 1, 1, 1)
-start = Key.new(board,"PLAY", 3, 3, 3, 1)
-
-
-
+a = Key.new(board, 'A',  6, 1, 1, 1)
+start = Key.new(board,"PLAY", 3, 2, 3, 1)
+start.set_bg("light green")
 Tk.mainloop
