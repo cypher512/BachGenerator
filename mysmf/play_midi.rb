@@ -128,21 +128,24 @@ def play_midi (user_in_code)
 
 	#コード進行
 	data = String.new
-
+#	pp user_in_code
 	user_in_code.each_with_index do |f, i|
 		if i == user_in_code.length - 1					#最後
-			f = 0.to_s + f.to_s + "2" + ".txt"
-			data += get_file(f) + " // "			
-		elsif i == 0
-			f = rand(4).to_s + f.to_s + "0" + ".txt"
-#			pp f
-			data += get_file(f)		
+			ff = 0.to_s + f.to_s + "2" + ".txt"
+#			pp ff ;pp "0"
+			data += get_file(ff) + " // "			
+		elsif i == 0 && f == 0									#最初
+			ff = rand(4).to_s + f.to_s + "0" + ".txt"
+#			pp ff ;pp "1"
+			data += get_file(ff)		
 		elsif (i % 2) == 0						#偶数番目
-			f = 0.to_s + f.to_s + "0" + ".txt"
-			data += get_file(f)
+			ff = rand(2).to_s + f.to_s + "0" + ".txt"
+#			pp ff ;pp "2"
+			data += get_file(ff)
 		else									#奇数番目
-			f = 0.to_s + f.to_s + "1" + ".txt"
-			data += get_file(f)
+			ff = rand(2).to_s + f.to_s + "1" + ".txt"
+#			pp ff ;pp "3"
+			data += get_file(ff)
 		end
 	end
 
