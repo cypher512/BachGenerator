@@ -1,5 +1,8 @@
 自動作曲アプリ　「誰でもバッハ」
 
+「誰でもバッハ」はコードをボタンで指定すると、誰でも簡単にバロック（もどき）の曲作りが楽しめてしまうプログラムです。
+Make: Tokyo Meeting 07に出品しました。
+
 0.WindowsにActiveRubyScriptとActiveTclをインストールします
 
 ActiveRubyScript
