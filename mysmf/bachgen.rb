@@ -14,14 +14,18 @@ class Keyboard
     @keys = []
     @chords = []
     @title = TkLabel.new("text" => "誰でもバッハ version 1.0", 'font' => 'Gothic 22').pack
-    @title.place('x' => (f_width / 3), 'y' => 15)
+    @title.place('x' => (f_width / 2)-55, 'y' => 15)
+#    @abstract = TkLabel.new("text" => "自動作曲システム", 'font' => 'Gothic 16').pack
+#    @abstract.place('x' => (f_width / 2)-55, 'y' => 22)
     @label = TkLabel.new("text" => "オススメコードがある場合はボタンが青くなります", 'font' => "Gothic 10").pack
-    @label.place('x' => (f_width / 3), 'y' => 300)
+    @label.place('x' => (f_width / 2)-44, 'y' => 300)
+    @git_url = TkLabel.new("text" => "https://github.com/cypher512/BachGenerator", 'font' => "Gothic 10").pack
+    @git_url.place('x' => (f_width / 2)-35, 'y' => 800)
     @message = TkLabel.new("text" => "ボタンを押してコード進行を決めて下さい", 'font' => 'Gothic 12').pack
     @key_window = TkLabel.new("text" => "ここに選択したコード例が表示されます",
                               "image" => TkPhotoImage.new("file" => "image/0.gif"),
                               "compound" => "bottom").pack
-    @key_window.place('x' => (f_width / 3), 'y' => 350)
+    @key_window.place('x' => (f_width / 2)-130, 'y' => 350)
     
     self
   end
@@ -94,6 +98,17 @@ class Keyboard
       key.set_bg(color)
     end
   end
+  ### Cのみblueにする
+  def recommend_default
+    @keys.each_with_index do |key, i|
+        if i == 0
+	    	color = "blue"
+	    else
+	    	color = "gray"
+	    end	
+      key.set_bg(color)
+    end
+  end
   
   ### paly_midiへのラッパー
   def play_midi_ext																	
@@ -106,6 +121,7 @@ class Keyboard
 	#pp chords_num
     play_midi chords_num
     @chords = []
+    recommend_default
   end
 end
 
@@ -114,12 +130,17 @@ class Key
     @name = name
     @w = w
     @h = h
+    if name == 'C'  												#一番左のボタン
+    	color = "blue"
+    else
+    	color = "gray"
+    end	
     @widget = TkButton.new(board.widget,
                           'text' => name,
                           'relief' => 'raised',
                           'width' =>  5,
                           'height' =>  10,
-                          'bg' => "gray")
+                          'bg' => color)
     @board = board
     @unit = 100
     moveto(x, y)

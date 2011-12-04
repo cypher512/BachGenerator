@@ -1,5 +1,13 @@
 自動作曲アプリ　「誰でもバッハ」
 
+0.ActiveRubyScriptとActiveTclをインストールします
+
+ActiveRubyScript
+http://www.artonx.org/data/asr/
+
+ActiveTcl
+http://www.activestate.com/activetcl
+
 1.SMF モジュールをインストールします
 
 (舟迫忠佳 (ふなばただよし)氏 http://www.funaba.org/ のSMFモジュールより引用)
@@ -24,5 +32,5 @@
 
 最初と最後はIを選んでください。
 
-動作環境　Windows 7 Service Pack 1  ActiveRubyScript (Ruby version 1.8.7)
+動作環境　Windows 7 Service Pack 1  ActiveRubyScript 1.8.7  ActiveTcl 8.5.11
 
