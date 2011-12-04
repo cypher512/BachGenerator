@@ -28,9 +28,10 @@ http://www.activestate.com/activetcl
 2.mysmfディレクトリに移動してRubyコンソールから次のように起動します。
 >ruby -Ku bachgen.rb
 
-3.画面の指示に従ってコード進行を選びます。
-
-最初と最後はIを選んでください。
+3.C D F G7 Aの５つのボタンを押してコード進行を決めていきます。
+　次のお勧めコードは青いボタンで示されます。
+　PLAYを押すと演奏がスタートします。
+　演奏が終わると次のコード入力に移れます。
 
 動作環境　Windows 7 Service Pack 1  ActiveRubyScript 1.8.7  ActiveTcl 8.5.11
 
