@@ -34,6 +34,9 @@ http://www.activestate.com/activetcl
 1.mysmfディレクトリに移動してRubyコンソールから次のように起動します。
 >ruby -Ku bachgen.rb
 
+ruby v1.9.2以降では
+>ruby -I. -Ku bachgen.rb
+
 2.C D F G7 Aの５つのボタンを押してコード進行を決めていきます。
 　次のお勧めコードは青いボタンで示されます。
 　PLAYを押すと演奏がスタートします。
