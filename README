@@ -44,6 +44,7 @@ ruby v1.9.2以降では
 
 
 動作環境　Windows 7 Service Pack 1  ActiveRubyScript 1.8.7  ActiveTcl 8.5.11
+    and   Windows 7 Service Pack 1 One-Click Installer for Windows (rubyinstaller-1.9.2-p290)
 
 開発者　作曲モジュール：冴木元(@cypher512) / GUIデザイン:Takashi Ogura(@littlestarling)
 
